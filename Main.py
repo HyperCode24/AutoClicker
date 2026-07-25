@@ -2,6 +2,7 @@ import time
 
 import pydirectinput
 import keyboard
+import ctypes
 
 # Sets the failsafe delay while keeping the corner breakout
 def setupFailsafes():
@@ -31,7 +32,11 @@ def altTab():
 
 # Report the mouse position
 def globalMousePos():
-    return pydirectinput.position()
+    cursor = ctypes.wintypes.POINT()
+    return ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
+
+def globalMouseMove(pos):
+    ctypes.windll.user32.SetCursorPos(pos)
 
 # Automatically switches screens to allow multitasking while fishing
 def ac_Fishing():
@@ -43,7 +48,7 @@ def ac_Fishing():
     pydirectinput.rightClick()
     stdDelay()
     altTab()
-    pydirectinput.moveTo(savedSpot)
+    globalMouseMove(savedSpot)
 
 # Makes sure failsafes are active
 setupFailsafes()
