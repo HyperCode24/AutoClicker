@@ -29,15 +29,21 @@ def altTab():
     pydirectinput.keyUp("alt")
     stdDelay()
 
+# Report the mouse position
+def globalMousePos():
+    return pydirectinput.position()
+
 # Automatically switches screens to allow multitasking while fishing
 def ac_Fishing():
     waitForKey('v')
+    savedSpot = globalMousePos()
     altTab()
     pydirectinput.rightClick()
     stdDelay()
     pydirectinput.rightClick()
     stdDelay()
     altTab()
+    pydirectinput.moveTo(savedSpot)
 
 # Makes sure failsafes are active
 setupFailsafes()
