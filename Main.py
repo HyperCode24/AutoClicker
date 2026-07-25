@@ -3,6 +3,7 @@ import time
 import pydirectinput
 import keyboard
 import ctypes
+import pynput
 
 # Sets the failsafe delay while keeping the corner breakout
 def setupFailsafes():
@@ -32,11 +33,19 @@ def altTab():
 
 # Report the mouse position
 def globalMousePos():
-    cursor = ctypes.wintypes.POINT()
-    return ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
+    '''cursor = ctypes.wintypes.POINT()
+    mousePos = ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
+    '''
+    mouse = pynput.mouse.Controller()
+    mousePos = mouse.position
+    print("Position is: " + str(mousePos))
+    return mousePos
 
 def globalMouseMove(pos):
-    ctypes.windll.user32.SetCursorPos(pos)
+    '''ctypes.windll.user32.SetCursorPos(pos)'''
+    mouse = pynput.mouse.Controller()
+    x, y = pos
+    mouse.position = (x,y)
 
 # Automatically switches screens to allow multitasking while fishing
 def ac_Fishing():
