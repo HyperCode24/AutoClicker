@@ -35,7 +35,7 @@ def waitForKey(key):
 
 # Detect when a fish is caught and reel in automatically (ChatGPT assistance)
 def fishingSubtitle(tolerance):
-    with mss.mss() as sct:
+    with mss.MSS() as sct:
         screenshot = np.array(sct.grab(region))
     gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
     result = cv2.matchTemplate(
@@ -44,20 +44,20 @@ def fishingSubtitle(tolerance):
         cv2.TM_CCOEFF_NORMED
     )
     _, max_val, _, max_loc = cv2.minMaxLoc(result)
-    print(max_val)
+    #a sprint(max_val)
     if max_val > tolerance:
         return True
     else:
         return False
 
 # Waits until a key is pressed and then released
-def waitForSubtitle(key):
-    print("Waiting for subtitle disappearance and then appearance.")
-    while fishingSubtitle(0.9):
+def waitForSubtitle(tolerance):
+    #print("Waiting for subtitle disappearance and then appearance.")
+    while fishingSubtitle(tolerance):
         time.sleep(0.1)
     while not(fishingSubtitle(0.9)):
         time.sleep(0.1)
-    print("Subtitle appeared.")
+    #print("Subtitle appeared.")
 
 # Define the delay your computer needs to register different keys here
 def stdDelay():
@@ -78,7 +78,7 @@ def globalMousePos():
     '''
     mouse = pynput.mouse.Controller()
     mousePos = mouse.position
-    print("Position is: " + str(mousePos))
+    #print("Position is: " + str(mousePos))
     return mousePos
 
 # Move the mouse to any monitor
@@ -90,7 +90,7 @@ def globalMouseMove(pos):
 
 # Automatically switches screens to allow multitasking while fishing
 def ac_Fishing():
-    waitForSubtitle('v')
+    waitForSubtitle(0.8)
     savedSpot = globalMousePos()
     altTab()
     pydirectinput.rightClick()
@@ -103,7 +103,7 @@ def ac_Fishing():
 # Makes sure failsafes are active
 setupFailsafes()
 
-# Run the autocliker infinitely after a short delay for setup
+# Short delay for setup
 waitsec = 5
 cursec = 0
 while cursec < waitsec:
@@ -111,5 +111,16 @@ while cursec < waitsec:
     cursec = cursec + 1
     time.sleep(1)
 print("Active")
+
+# Run the autocliker infinitely and report times ran
+operations = 0
+totalStart = time.time()
 while True:
+    operationStart = time.time()
     ac_Fishing()
+    operationDone = time.time()
+    totalDone = time.time()
+    totalElapsed = round(totalDone - totalStart,2)
+    operationElapsed = round(operationDone - operationStart,2)
+    operations = operations + 1
+    print("Completed operation " + str(operations) + " in " + str(operationElapsed) + "s. Total time elapsed: " + str(totalElapsed) + "s.")
