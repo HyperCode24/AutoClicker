@@ -104,7 +104,7 @@ def ac_Fishing():
 setupFailsafes()
 
 # Run the autocliker infinitely after a short delay for setup
-waitsec = 10
+waitsec = 5
 cursec = 0
 while cursec < waitsec:
     print("Starting in " + str(waitsec-cursec) + " seconds.")
