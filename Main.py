@@ -9,12 +9,6 @@ import mss
 import numpy as np
 
 # Set up image detection and global variables (ChatGPT assistance)
-region = {
-    "left": 2270,
-    "top": 1270,
-    "width": 290,
-    "height": 73
-}
 template = cv2.imread("text screenshot.png", cv2.IMREAD_GRAYSCALE)
 template_width = template.shape[1]
 template_height = template.shape[0]
@@ -23,6 +17,10 @@ template_height = template.shape[0]
 def setupFailsafes():
     pydirectinput.FAILSAFE = True
     pydirectinput.PAUSE = 0
+
+# Reports if the key is pressed
+def keyPressed(key):
+    return keyboard.is_pressed(key)
 
 # Waits until a key is pressed and then released
 def waitForKey(key):
@@ -34,9 +32,9 @@ def waitForKey(key):
     print(key + " key pressed and released.")
 
 # Detect when a fish is caught and reel in automatically (ChatGPT assistance)
-def fishingSubtitle(tolerance):
+def fishingSubtitle(box,tolerance):
     with mss.MSS() as sct:
-        screenshot = np.array(sct.grab(region))
+        screenshot = np.array(sct.grab(box))
     gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
     result = cv2.matchTemplate(
         gray,
@@ -51,11 +49,11 @@ def fishingSubtitle(tolerance):
         return False
 
 # Waits until a key is pressed and then released
-def waitForSubtitle(tolerance):
+def waitForSubtitle(box,tolerance):
     #print("Waiting for subtitle disappearance and then appearance.")
-    while fishingSubtitle(tolerance):
+    while fishingSubtitle(box,tolerance):
         time.sleep(0.1)
-    while not(fishingSubtitle(0.9)):
+    while not(fishingSubtitle(box,tolerance)):
         time.sleep(0.1)
     #print("Subtitle appeared.")
 
@@ -72,13 +70,14 @@ def altTab():
     stdDelay()
 
 # Report the mouse position
-def globalMousePos():
+def globalMousePos(debug=False):
     '''cursor = ctypes.wintypes.POINT()
     mousePos = ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
     '''
     mouse = pynput.mouse.Controller()
     mousePos = mouse.position
-    #print("Position is: " + str(mousePos))
+    if debug:
+        print("Position is: " + str(mousePos))
     return mousePos
 
 # Move the mouse to any monitor
@@ -90,7 +89,13 @@ def globalMouseMove(pos):
 
 # Automatically switches screens to allow multitasking while fishing
 def ac_Fishing():
-    waitForSubtitle(0.8)
+    region = {
+        "left": 2270,
+        "top": 1270,
+        "width": 290,
+        "height": 73
+    }
+    waitForSubtitle(region,0.8)
     savedSpot = globalMousePos()
     altTab()
     pydirectinput.rightClick()
@@ -99,6 +104,25 @@ def ac_Fishing():
     stdDelay()
     altTab()
     globalMouseMove(savedSpot)
+
+# Fishing for only one screen
+def ac_Fishing2():
+    region = {
+        "left": -291,
+        "top": 1277,
+        "width": 290,
+        "height": 65
+    }
+    waitForSubtitle(region,0.8)
+    pydirectinput.rightClick()
+    stdDelay()
+    pydirectinput.rightClick()
+    stdDelay()
+
+# Show where the mouse is
+def debug_mousePos():
+    while not (keyPressed('v')):
+        globalMousePos(True)
 
 # Makes sure failsafes are active
 setupFailsafes()
@@ -117,10 +141,16 @@ operations = 0
 totalStart = time.time()
 while True:
     operationStart = time.time()
-    ac_Fishing()
+    
+    # The actual operation to perform
+    ac_Fishing2()
+    
     operationDone = time.time()
     totalDone = time.time()
     totalElapsed = round(totalDone - totalStart,2)
     operationElapsed = round(operationDone - operationStart,2)
     operations = operations + 1
     print("Completed operation " + str(operations) + " in " + str(operationElapsed) + "s. Total time elapsed: " + str(totalElapsed) + "s.")
+
+# Otherwise run debug mouse position code
+debug_mousePos()
